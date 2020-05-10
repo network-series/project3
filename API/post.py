@@ -17,12 +17,20 @@ class Item(BaseModel):
 
 @app.post('/test')
 def calculate(request_data: Item):
-    a = request_data.a
-    b = request_data.b
+    licID = request_data.a
 
-    res = {"res": c,
-           "num":10
-           }
+    #在此查询数据库中这个licID有没有是否合法，合法就更新
+    valid=True
+    if (valid):
+        res = {
+            "code": 1  #
+        }
+    else :
+        res={
+            "code": 5    #非法许可证
+        }
+
+
     return res
 
 
