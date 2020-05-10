@@ -1,11 +1,13 @@
 # project3
 ## log
-+ 5/10更新测试api
++ 5/10 00：20 更新测试api
++ 5/10 17：03 api完成
 
 | API                           | 参数                                          | 错误码                            | 返回data                         | 描述     |
 | ----------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- | -------- |
-| [POST/verify]                 | license_id                                    | 1=非法许可证                       | ok                               | 验证许可证  |
-| [GET/buyLic]                  | usr; type                                     |                                   |  license_id_list;                | 购买许可证  |
+| [POST/verify]                 | license_id                                    | 5=非法许可证                       | ok                               | 验证许可证  |
+| [GET/buyLic]                  |  type ; usrId; password;                      |                                   |  code; usrId; password;data;num              | 购买许可证  |
 
-post为向服务器验证许可证
-get为web端获取许可证
++ get为web端获取许可证
+
++ post为向服务器验证许可证
