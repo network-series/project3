@@ -20,12 +20,19 @@
 					placeholder="口令"
 				></wInput>
 			</view>
-			
+			<view class="uni-padding-wrap" style="text-align: center; margin-top: 10%;">
+			        <radio-group @change="ratioChange">
+			            <view>
+			                <label class="radio"><radio value='10' />10人</label>
+			                <label class="radio"><radio value='50' />50人</label>
+			            </view>
+			       </radio-group> 
+			</view>
 								
 					
 			
 			<wButton 
-				text="登陆"
+				text="获取许可证"
 				:rotate="isRotate" 
 				@click.native="startLogin()"
 				class="wbutton"
@@ -163,6 +170,6 @@
 
 <style>
 	@import url("../../components/watch-login/css/icon.css");
-	@import url("./css/main.css");
+	@import url("../../pages/login/css/main.css");
 	
 </style>
