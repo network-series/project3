@@ -17,7 +17,7 @@
 					v-model="phoneData"
 					type="text"
 					maxlength="11"
-					placeholder="手机号"
+					placeholder="用户名"
 				></wInput>
 				<wInput
 					v-model="passData"
@@ -38,15 +38,8 @@
 				></wInput>
 					
 			</view>
-				
-			<wButton 
-				text="注 册"
-				:rotate="isRotate" 
-				@click.native="startReg()"
-			></wButton>
-			
 			<!-- 底部信息 -->
-			<view class="footer">
+			<view class="footer" style="margin-top: 5%;">
 				<text 
 					@tap="isShowAgree" 
 					class="cuIcon"
@@ -54,7 +47,16 @@
 				>同意</text>
 				<!-- 协议地址 -->
 				<navigator url="" open-type="navigate">《协议》</navigator>
-			</view>
+			</view>	
+			
+			<wButton 
+				text="注 册"
+				:rotate="isRotate" 
+				@click.native="startReg()"
+				style="margin-top: 5%;"
+			></wButton>
+			
+			
 		</view>
 	</view>
 </template>

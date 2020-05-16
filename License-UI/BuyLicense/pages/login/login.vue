@@ -47,7 +47,11 @@
 	var _this;
 	import wInput from '../../components/watch-login/watch-input.vue' //input
 	import wButton from '../../components/watch-login/watch-button.vue' //button
-	
+	import {
+		
+	mapState,
+		mapMutations
+	} from 'vuex'
 	export default {
 		data() {
 			return {
@@ -56,17 +60,24 @@
 				phoneData:'', //用户/电话
 				passData:'', //密码
 				isRotate: false, //是否加载旋转
+				vo:{
+					usrID:null,
+					password:null
+				}
 			};
 		},
 		components:{
 			wInput,
 			wButton,
 		},
+		computed: mapState(['userName', 'baseURL', 'loginPage', 'userInfo', 'hasLogin', 'cookie','job']),
+		
 		mounted() {
 			_this= this;
 			//this.isLogin();
 		},
 		methods: {
+			...mapMutations(['setLogin','setCookie','onworking']),
 			ratioChange: function(evt){
 				console.log(evt.detail.value)
 			},
@@ -93,6 +104,7 @@
 					return false;
 				}
 				if (this.phoneData.length == "") {
+					this.vo.usrID=this.phoneData
 				     uni.showToast({
 				        icon: 'none',
 						position: 'bottom',
@@ -101,6 +113,7 @@
 				    return;
 				}
 		        if (this.passData.length < 5) {
+					tihs.vo.password=this.passData
 		            uni.showToast({
 		                icon: 'none',
 						position: 'bottom',
@@ -109,51 +122,31 @@
 		            return;
 		        }
 				
-				console.log("登录成功")
+				
 				
 				_this.isRotate=true
+				uni.request({
+					method: "POST",
+					data: this.vo,
+					url:"http://127.0.0.1:8000/login",
+					success:(res)=>{
+						console.log(res.data)
+						if (res.data.code==1){
+							console.log("yes!")
+						}
+						uni.showToast({
+							icon: "none",
+							title: "登录成功"
+						});
+					}
+				})
 				setTimeout(function(){
 					_this.isRotate=false
-				},3000)
-				// uni.showLoading({
-				// 	title: '登录中'
-				// });
-				// getLogin()
-				// .then(res => {
-				// 	//console.log(res)
-				// 	//简单验证下登录（不安全）
-				// 	if(_this.phoneData==res.data.username && _this.passData==res.data.password){
-				// 		let userdata={
-				// 			"username":res.data.username,
-				// 			"nickname":res.data.nickname,
-				// 			"accesstoken":res.data.accesstoken,
-				// 		} //保存用户信息和accesstoken
-				// 		_this.$store.dispatch("setUserData",userdata); //存入状态
-				// 		try {
-				// 			uni.setStorageSync('setUserData', userdata); //存入缓存
-				// 		} catch (e) {
-				// 			// error
-				// 		}
-				// 		uni.showToast({
-				// 			icon: 'success',
-				// 			position: 'bottom',
-				// 			title: '登录成功'
-				// 		});
-				// 		uni.reLaunch({
-				// 			url: '../../../pages/index',
-				// 		});
-				// 	}else{
-				// 		_this.passData=""
-				// 		uni.showToast({
-				// 			icon: 'error',
-				// 			position: 'bottom',
-				// 			title: '账号或密码错误，账号admin密码admin'
-				// 		});
-				// 	}
-				// 	uni.hideLoading();
-				// }).catch(err => {
-				// 	uni.hideLoading();
-				// })
+					uni.navigateTo({
+						url:'../index/index'
+					})
+				},500)
+				
 				
 		    }
 			
