@@ -1,5 +1,41 @@
 # project3
 
+## 后端1.0 ##
+
+以下内容为后端第一版的内容，之后和同组的同学交流后由他更新了后端更新版本的内容。
+
+[https://blog.csdn.net/weixin_30614109/article/details/99312223]()
+
+第一版中C/S架构端通信的基本框架参考了以上链接，并根据需要加入了实现客户端定时发送状态、C/S两端进行验证功能的代码。
+
+实现客户端定时发送状态的思路如下：导入python中的time模块，**记录服务器开始运行时的时间**。建立连接后不断记录当下的时间，并**和最初记录的时间做差**，结果是某一个数据（如5分钟）的倍数时，进行连接状态的发送。
+
+```python
+if(round(time.time() - starttime, 0)%5 == 0):	
+    #如果连接未断开，每隔五秒会发送一个connecting的信息
+		stick_pack_client.send('connecting')
+```
+
+实现C/S两端进行验证功能的思路如下：在客户端中定义一个if_test的boolean型变量并置为False。之后检查if_test的状态，如果尚未通过验证会发送验证信息。服务器端收到验证的信息会进行剩余人数的确认并完成验证。
+
+```python
+#客户端：
+if(!if_test):	#未通过验证会发送验证
+		stick_pack_client.send('******')	#发送请求
+if(data == 'agree'):	#如果接受到agree的信息，表示验证通过
+		if_test = True
+#服务器端：
+if(cmd == '******' ):	#如果收到验证请求
+			if(maxnumber>0):	#如果还有名额
+				msg.send('agree')
+				maxnumber -=1
+			else:
+				msg.send('refuse')
+
+```
+
+全部的后端1.0版本代码可以查看commit。
+
 ## 数据结构设计
 用户数据
 ```
