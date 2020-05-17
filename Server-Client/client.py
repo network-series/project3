@@ -1,44 +1,94 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-__author__ = "loki"
 import socket
 import struct
 import time
+import os
+import sys
+from threading import Thread
 
-user_input = input("Please input client_ip: ").strip()
-ip_port = ('%s' % user_input, 9991)
-buff_size = 1024
+server_ip_port=("192.168.0.101",5200)
+buffer_size=1024
+conn=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+conn.setblocking(0)
+conn.settimeout(180)
+ticket=""
 
-stick_pack_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-stick_pack_client.connect(ip_port)
-starttime = time.time()
-if_test = False
+def pre():
+    print('Waiting...')
+    if os.path.exists("D:\project\cn_program3\check.txt"):
+        file=open("D:\project\cn_program3\check.txt")
+        seq=file.readline()
+        file.close()
+        conn.sendto(seq+" check",server_ip_port)
+        response,server_addr=conn.recvfrom(buffer_size)
+        if response!="agree":
+            print("å¯¹ä¸èµ·,æ‚¨çš„åºåˆ—å·å‡ºé”™æ— æ³•é€šè¿‡éªŒè¯")
+            sys.exit(0)
+        return 1
+    else:
+        in_seq=input("è¯·è¾“å…¥æ‚¨çš„åºåˆ—å·:")
+        conn.sendto(in_seq+" check",server_ip_port)
+        res,ser_addr=conn.recvfrom(buffer_size)
+        if res!="agree":
+            print("å¯¹ä¸èµ·,æ‚¨çš„åºåˆ—å·å‡ºé”™æ— æ³•é€šè¿‡éªŒè¯")
+            sys.exit(0) 
+        else:
+            in_file=open("D:\project\cn_program3\check.txt")
+            in_file.write(in_seq)
+            in_file.close()
+            return 1
 
-while 1:
-	# send message
-	cmd = input('>>: ').strip()
-	if not cmd:
-		continue
-	stick_pack_client.send(cmd.encode("utf-8"))
-	if(round(time.time() - starttime, 0)%5 == 0):	#Èç¹ûÁ¬½ÓÎ´¶Ï¿ª£¬Ã¿¸ôÎåÃë»á·¢ËÍÒ»¸öconnectingµÄĞÅÏ¢
-		stick_pack_client.send('connecting')
-	if(!if_test):	#Î´Í¨¹ıÑéÖ¤»á·¢ËÍÑéÖ¤
-		stick_pack_client.send('ask')	#·¢ËÍÇëÇó
+def clock(s,ti,t):
+    t_in=t
+    while True:
+        t_current=time.localtime(time.time())
+        if (((t_current.tm_mday-t_in.tm_mday)*24+t_current.tm_hour-t_in.tm_hour)*60+t_current.tm_min-t_in.tm_min)>=30:
+            conn.sento("onli"+" "+s+" "+ti,server_ip_port)
+            t_in=t_current
+        time.sleep(60)
 
-	# receive header
-	baotou = stick_pack_client.recv(4)
-	data_size = struct.unpack("i", baotou)[0]
+def main():
+    while True:
+        file=open("D:\project\cn_program3\check.txt")
+        sequence=file.readline()
+        cmd=input("è¯·è¾“å…¥æ‚¨çš„å‘½ä»¤:")
+        if cmd=="exit":
+            sys.exit(0)
+        elif cmd[0:4]=="helo":
+            conn.sendto(cmd+' '+sequence,server_ip_port)
+            try:
+                h_data=conn.recvfrom(buffer_size)
+            except Exception as e:
+                print("æœåŠ¡å™¨å¼‚å¸¸ï¼Œè¯·ç¨åå†è¯•")
+                continue
+            if h_data[0:4]== "fail":
+                print("å¯¹ä¸èµ·ï¼Œå½“å‰ä½¿ç”¨äººæ•°å·²æ»¡")
+                sys.exit(0)
+            else:
+                ticket=h_data
+                t1=Thread(target=clock,args=(sequence,ticket,time.localtime(time.time())))
+                t1.start()
+        elif cmd[0:4]=="gbye":
+            conn.sendto(cmd+' '+sequence,server_ip_port)
+            try:
+                g_data=conn.recvfrom(buffer_size)
+            except Exception as e:
+                print("æœåŠ¡å™¨å¼‚å¸¸ï¼Œè¯·ç¨åå†è¯•")
+                continue
+            if g_data[0:4]=="thax":
+                print("å½’è¿˜æˆåŠŸ")
+                sys.exit(0)
+            else:
+                print("å½’è¿˜æ“ä½œé”™è¯¯")
+                continue
+        else:
+            continue
 
-	# receive data
-	receive_size = 0
-	receive_data = b''
-	while receive_size < data_size:
-		data = stick_pack_client.recv(1024)
-		if(data == 'agree'):	#Èç¹û½ÓÊÜµ½agreeµÄĞÅÏ¢£¬±íÊ¾ÑéÖ¤Í¨¹ı
-			if_test = True
-		receive_size += len(data)
-		receive_data += data
+if __name__=='__main__':
+    if pre()==1:
+        main()
+    
+    
 
-	print(receive_data.decode("gbk"))
 
-# stick_pack_client.close()
+
+
