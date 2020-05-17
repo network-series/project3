@@ -1,53 +1,110 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-__author__ = "loki"
 import socket
-import subprocess
 import struct
+import time
+import pandas as pd
+from threading import Thread
 
-user_input = input('Please input server_ip: ').strip()
-ip_port = ('%s' % user_input, 9991)
-buff_size = 1024
-maxnumber = 10	#最大连接人数
+def main():
+    server_ip_port=("192.168.0.101",5200)
+    buffer_size=1024
+    conn=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    conn.bind(server_ip_port)
+    while True:
+        sExcelFile="D:\project\cn_program3\information.xlsx"
+        df = pd.read_excel(sExcelFile)
+        row_of_inf=df.shape[0]
+        message,client_addr=conn.recvfrom(buffer_size)
+        if message[0:4]==helo:
+            m_split=message.split()
+            port,seq=m_split[1],m_split[2]
+            point=-1
+            for i in range(row_of_inf):
+                if seq==df['data'][i]:
+                    point=i
+                    break
+            num=df['avai_num'][point]
+            if num==0:
+                conn.sendto("fail no ticket",client_addr)
+            else:
+                number=-1
+                for d in range(1,df['num'][point]+1):
+                    if df[str(d)+"_time"][point]=="null":
+                        number=d
+                        break
+                ticket=port+"."+number
+                num=num-1
+                df['avai_num'][point]=num
+                df.to_excel(sExcelFile)
+                conn.sendto(ticket,client_addr)
+        elif message[0:4]==gbye:
+            g_split=message.split()
+            tickets,se=g_split[1],g_split[2]
+            n=tickets[-1]
+            g_point=-1
+            for i in range(row_of_inf):
+                if se==df['data'][i]:
+                    g_point=i
+                    break
+            if int(n) in range(1,df['num'][g_point]+1):
+                df[n+"_time"][g_point]="null"
+                df['avai_num'][g_point]=df['avai_num'][g_point]+1
+                df.to_excel(sExcelFile)
+                conn.sendto("thax",client_addr)
+            else:
+                conn.sendto("rtrn deny",client_addr)
+        elif message[0:4]==onli:
+            o_split=message.split()
+            o_seq,o_ticket=o_split[1],o_split[2]
+            o_n=o_ticket[-1]
+            o_point=-1
+            for i in range(row_of_inf):
+                if o_seq==df['data'][i]:
+                    g_point=i
+                    break
+            df[o_n+'_time'][o_point]=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            df.to_excel(sExcelFile)
+        elif message[-5:-1]==check:
+            flag=0
+            for i in range(row_of_inf):
+                if message==df['data'][i]:
+                    flag=1
+                    break
+            if flag==0:
+                conn.sento("deny",client_addr)
+            else:
+                conn.sendto("agree",client_addr)
+        else:
+            continue
 
-stick_pack_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)	#创建套接字
-stick_pack_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)	#设置给定套接字选项的值
+def check_client():
+    while True:
+        sExcelFile="D:\project\cn_program3\information.xlsx"
+        df = pd.read_excel(sExcelFile)
+        row_of_inf=df.shape[0]
+        for i in range(row_of_inf):
+            for j in range(1,df['num'][i]+1):
+                if df.iloc[i][j+5]!="null":
+                    t_content=df.iloc[i][j+5]
+                    t_current=time.localtime(time.time())
+                    if (((t_current.tm_mday-t_content[8:10])*24+t_current.tm_hour-t_content[11:13])*60+t_current.tm_min-t_content[14:16])>=31:
+                        df['avai_num'][i]=df['avai_num'][i]+1
+                        df.iloc[i][j+5]="null"
+                        df.to_excel(sExcelFile)
+        time.sleep(60)
 
-stick_pack_server.bind(ip_port)	#绑定地址（host,port）到套接字
-stick_pack_server.listen(5)	#开始TCP监听
+def inita():
+    sExcelFile="D:\project\cn_program3\information.xlsx"
+    df = pd.read_excel(sExcelFile)
+    row_of_inf=df.shape[0]
+    for i in range(row_of_inf):
+        for j in range(1,df['num'][i]+1):
+            if df.iloc[i][j+5]!="null":
+                df.iloc[i][j+5]=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
-while 1:
-	print('Waiting...')
-	msg, address = stick_pack_server.accept()	#被动接受TCP客户端连接,(阻塞式)等待连接的到来
-	print("msg-->: ", msg)
-	print("addr-->: ", address)
-	while 1:
-		try:
-			cmd = msg.recv(buff_size)	#接收TCP数据，数据以字符串形式返回，bufsize指定要接收的最大数据量
-			if(cmd == 'ask' ):	#如果收到验证请求
-				if(maxnumber>0):	#如果还有名额
-					msg.send('agree')
-					maxnumber -=1
-				else:
-					msg.send('refuse')
-			if not msg:
-				break
-			res = subprocess.Popen(cmd.decode("utf-8"), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-								   stdin=subprocess.PIPE)	#subprocess 模块允许我们启动一个新进程
-			stderr = res.stderr.read()	#正确结果
-			stdout = res.stdout.read()	#错误结果
-
-			data_size = len(stderr) + len(stdout)
-
-
-			# send header
-			msg.send(struct.pack("i", data_size))
-
-			# send real data
-			msg.send(stderr)
-			msg.send(stdout)
-		except Exception as e:
-			print('---->', e)
-			break
-	msg.close()
-# phone.close()
+if __name__=='__main__':
+    inita()
+    t1=Thread(target=main)
+    t1.start()
+    t2=Thread(target=check_client)
+    t2.start()
+    
