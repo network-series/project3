@@ -7,8 +7,9 @@
 from pydantic import BaseModel
 from fastapi import FastAPI
 import random
+import openpyxl
 def made():  # 生成激活码
-    activation_code = ''.join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456', 12))
+    activation_code = ''.join(random.sample('0123456789', 10))
     return activation_code
 def judge(a):  # 判断生成的激活码是否和字典中存在的激活码重复
     new_made = made()
@@ -39,9 +40,16 @@ def calculate(request_data: Item):
     usrID = request_data.a
     password=request_data.b
     #在此查询数据库中这个usrID有没有是否合法
-    data='?'  #数据库查询后赋值
-    num=0     #数据库查询后赋值
-    valid=True
+    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    ws = wb['Sheet1']
+    row = ws.max_row
+    valid = False
+    for i in range(2, row + 1):
+        if (usrID == ws.cell(row=i, column=2).value):
+            if (password == ws.cell(row=i, column=3).value):  # ID和密码都正确 进行对应赋值
+                valid = True
+                data = ws.cell(row=i, column=4).value
+                num = ws.cell(row=i, column=6).value
     if (valid):
         res = {
             "code": 1 , #
@@ -63,7 +71,12 @@ def calculate(request_data: Item):
     new_usrID = request_data.a
     new_password=request_data.b
     #插入数据库
-
+    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    ws = wb['Sheet1']
+    row = ws.max_row
+    ws.cell(row=row + 1, column=2).value = new_usrID
+    ws.cell(row=row + 1, column=3).value = new_password
+    wb.save('D:\共享文件夹\project3\Server-Client.information.xlsx')
     res = {
             "code": 1  #
      }
@@ -72,6 +85,7 @@ def calculate(request_data: Item):
 class Item(BaseModel):
     a: str = None
 
+'''
 @app.post('/verify')
 def calculate(request_data: Item):
     license_id = request_data.a
@@ -87,13 +101,18 @@ def calculate(request_data: Item):
             "code": 5    #非法许可证
         }
     return res
-
+'''
 
 @app.get('/buy/type={type}/usrID={usrID}')
 def calculate(type: int = None, usrID: str = None):
     result = generateLic(1)   #此处生成许可证后还需写入数据库
     print(result[1])
     data=result[1]
+    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    ws = wb['Sheet1']
+    row = ws.max_row
+    ws.cell(row=row + 1, column=4).value = data  # 许可证内容写入Excel
+    wb.save('D:\共享文件夹\project3\Server-Client.information.xlsx')
     if type==0:
         num=10
     else:
