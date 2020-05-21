@@ -40,7 +40,7 @@ async def create_item(item: Item):
     print(item.usrID)
     usrID=item.usrID
     password=item.password
-    wb = openpyxl.load_workbook('F:\桌面\git\project3\Server-Client\information.xlsx')
+    wb = openpyxl.load_workbook('D:\pro\project3\Server-Client\information.xlsx')
     ws = wb['Sheet1']
     row = ws.max_row
     valid = False
@@ -71,13 +71,14 @@ class Item(BaseModel):
 def calculate(request_data: Item):
     new_usrID = request_data.usrID
     new_password=request_data.password
+    print(request_data)
     #插入数据库
-    wb = openpyxl.load_workbook('F:\桌面\git\project3\Server-Client\information.xlsx')
+    wb = openpyxl.load_workbook('D:\pro\project3\Server-Client\information.xlsx')
     ws = wb['Sheet1']
     row = ws.max_row
     ws.cell(row=row + 1, column=2).value = new_usrID
     ws.cell(row=row + 1, column=3).value = new_password
-    wb.save('F:\桌面\git\project3\Server-Client\information.xlsx')
+    wb.save('D:\pro\project3\Server-Client\information.xlsx')
     res = {
             "code": 1  #
      }
@@ -92,17 +93,20 @@ def calculate(request_data: Item):
     print(result[1])
     print(request_data)
     data = result[1]
-    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
-    ws = wb['Sheet1']
-    row = ws.max_row
-    ws.cell(row=row + 1, column=4).value = data  # 许可证内容写入Excel
-    wb.save('D:\共享文件夹\project3\Server-Client.information.xlsx')
     if type == 0:
         num = 10
     else:
         num = 50
+    wb = openpyxl.load_workbook('D:\pro\project3\Server-Client\information.xlsx')
+    ws = wb['Sheet1']
+    row = ws.max_row
+    for i in range(2, row + 1):
+        if (request_data.usrID == ws.cell(row=i, column=2).value):
+            ws.cell(row=i, column=4).value = data  # 许可证内容写入Excel
+            ws.cell(row=i, column=5).value = num
+            wb.save('D:\pro\project3\Server-Client\information.xlsx')
     res = {"code": 1,  # 表示获取成功
-           "usrID": usrID,
+           "usrID": request_data.usrID,
            "data": data,  # 许可证列表
            "num": num  # 该账号剩余许可证数量
            }
@@ -113,6 +117,6 @@ if __name__ == '__main__':
     import uvicorn
 
     uvicorn.run(app=app,
-                host="0.0.0.0",
+                host="127.0.0.1",
                 port=8000,
                 workers=1)
