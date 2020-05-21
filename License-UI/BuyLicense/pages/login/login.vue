@@ -19,10 +19,8 @@
 					maxlength="11"
 					placeholder="口令"
 				></wInput>
-			</view>
 			
-								
-					
+			
 			
 			<wButton 
 				text="登陆"
@@ -32,7 +30,7 @@
 			></wButton>
 			
 			
-			
+			</view>
 			<!-- 底部信息 -->
 			<view class="footer">
 				<navigator url="forget" open-type="navigate">找回密码</navigator>
@@ -157,5 +155,9 @@
 <style>
 	@import url("../../components/watch-login/css/icon.css");
 	@import url("./css/main.css");
-	
+	.main{
+			
+			margin-left: auto;
+			margin-right: auto;
+		}
 </style>

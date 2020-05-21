@@ -33,7 +33,7 @@
 			<wButton 
 				text="获取许可证"
 				:rotate="isRotate" 
-				@click.native="startLogin()"
+				@click.native="getLicense()"
 				class="wbutton"
 			></wButton>
 			
@@ -56,7 +56,7 @@
 		components: {uniNavBar},
 		data() {
 			return {
-				usrID
+				usr
 				
 			};
 		},
@@ -72,7 +72,9 @@
 		},
 		methods: {
 			...mapMutations(['loginNeeded','setLogin','onworking','logout']),
-			
+			getLicense: function(){
+				
+			},
 			ratioChange: function(evt){
 				console.log(evt.detail.value)
 			}

@@ -29,18 +29,18 @@ def generateLic(number):
     return a
 
 
-app = FastAPI()
-
-
 class Item(BaseModel):
-    a: str = None
-    b: str = None
-@app.post('/login')
-def calculate(request_data: Item):
-    usrID = request_data.a
-    password=request_data.b
-    #在此查询数据库中这个usrID有没有是否合法
-    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    usrID: str
+    password: str
+
+
+app = FastAPI()
+@app.post("/login")
+async def create_item(item: Item):
+    print(item.usrID)
+    usrID=item.usrID
+    password=item.password
+    wb = openpyxl.load_workbook('F:\桌面\git\project3\Server-Client\information.xlsx')
     ws = wb['Sheet1']
     row = ws.max_row
     valid = False
@@ -52,77 +52,62 @@ def calculate(request_data: Item):
                 num = ws.cell(row=i, column=6).value
     if (valid):
         res = {
-            "code": 1 , #
-            "usrID":usrID,
-            "data":data,
-            "num":num
+            "code": 1,  #
+            "usrID": usrID,
+            "password":password,
+            "data": data,
+            "num": num
         }
-    else :
-        res={
-            "code": 5    #非法登陆
+    else:
+        res = {
+            "code": 5  # 非法登陆
         }
     return res
 
 class Item(BaseModel):
-    a: str = None
-    b: str = None
+    usrID: str = None
+    password: str = None
 @app.post('/register')
 def calculate(request_data: Item):
-    new_usrID = request_data.a
-    new_password=request_data.b
+    new_usrID = request_data.usrID
+    new_password=request_data.password
     #插入数据库
-    wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    wb = openpyxl.load_workbook('F:\桌面\git\project3\Server-Client\information.xlsx')
     ws = wb['Sheet1']
     row = ws.max_row
     ws.cell(row=row + 1, column=2).value = new_usrID
     ws.cell(row=row + 1, column=3).value = new_password
-    wb.save('D:\共享文件夹\project3\Server-Client.information.xlsx')
+    wb.save('F:\桌面\git\project3\Server-Client\information.xlsx')
     res = {
             "code": 1  #
      }
     return res
 
 class Item(BaseModel):
-    a: str = None
-
-'''
-@app.post('/verify')
+    usrID: str
+    type: int
+@app.post('/buy')
 def calculate(request_data: Item):
-    license_id = request_data.a
-
-    #在此查询数据库中这个LicID有没有是否合法
-    valid=True
-    if (valid):
-        res = {
-            "code": 1  #
-        }
-    else :
-        res={
-            "code": 5    #非法许可证
-        }
-    return res
-'''
-
-@app.get('/buy/type={type}/usrID={usrID}')
-def calculate(type: int = None, usrID: str = None):
-    result = generateLic(1)   #此处生成许可证后还需写入数据库
+    result = generateLic(1)  # 此处生成许可证后还需写入数据库
     print(result[1])
-    data=result[1]
+    print(request_data)
+    data = result[1]
     wb = openpyxl.load_workbook('D:\共享文件夹\project3\Server-Client.information.xlsx')
     ws = wb['Sheet1']
     row = ws.max_row
     ws.cell(row=row + 1, column=4).value = data  # 许可证内容写入Excel
     wb.save('D:\共享文件夹\project3\Server-Client.information.xlsx')
-    if type==0:
-        num=10
+    if type == 0:
+        num = 10
     else:
-        num=50
-    res = {"code":1, #表示获取成功
-        "usrID":usrID,
-        "data": data,  #许可证列表
-        "num": num    #该账号剩余许可证数量
+        num = 50
+    res = {"code": 1,  # 表示获取成功
+           "usrID": usrID,
+           "data": data,  # 许可证列表
+           "num": num  # 该账号剩余许可证数量
            }
     return res
+
 
 if __name__ == '__main__':
     import uvicorn

@@ -1,10 +1,6 @@
 <template>
 	<view class="register">
-		<view @click="goback">
-		<uni-nav-bar left-icon="back" left-text="返回" title="注册" color="black">
-			
-		</uni-nav-bar>
-        </view>
+		
 		
 		<view class="content">
 			<!-- 头部logo -->
@@ -13,6 +9,7 @@
 			</view>
 			<!-- 主体 -->
 			<view class="main">
+				
 				<wInput
 					v-model="phoneData"
 					type="text"
@@ -34,7 +31,7 @@
 					isShowPass
 				></wInput>
 					
-			</view>
+			
 			<!-- 底部信息 -->
 			<view class="footer" style="margin-top: 5%;">
 				<text 
@@ -43,7 +40,7 @@
 					:class="showAgree?'cuIcon-radiobox':'cuIcon-round'"
 				>同意</text>
 				<!-- 协议地址 -->
-				<navigator url="" open-type="navigate">《协议》</navigator>
+				<view @click="show">《协议》</view>
 			</view>	
 			
 			<wButton 
@@ -52,7 +49,14 @@
 				@click.native="startReg()"
 				style="margin-top: 5%;"
 			></wButton>
+			<wButton
+				text="返 回"
+				:rotate="isRotate" 
+				@click.native="goback"
+				style="margin-top: 5%;"
+			></wButton>
 			
+			</view>
 			
 		</view>
 	</view>
@@ -96,6 +100,13 @@
 					
 				})
 			},
+			show(){
+				uni.showModal({
+				    title: '提示',
+				    content: '这是今天我们好好学习了吗组的协议，所有解释权归该组所有',
+				   
+				});
+			},
 			isShowAgree(){
 				//是否选择协议
 				_this.showAgree = !_this.showAgree;
@@ -109,7 +120,7 @@
 				}
 				if (this.showAgree == false) {
 				    uni.showToast({
-				        icon: 'none',
+				        icon: 'loading',
 						position: 'bottom',
 				        title: '请先同意《协议》'
 				    });
@@ -117,7 +128,7 @@
 				}
 				if (this.phoneData.length ==0) {
 				    uni.showToast({
-				        icon: 'none',
+				        icon: 'loading',
 						position: 'bottom',
 				        title: '请输入用户名'
 				    });
@@ -125,7 +136,7 @@
 				}
 		        if (this.passData.length < 6) {
 		            uni.showToast({
-		                icon: 'none',
+		                icon: 'loading',
 						position: 'bottom',
 		                title: '密码应大于六位'
 		            });
@@ -188,4 +199,9 @@
 	margin-top:0%;
 	margin-left:0%;
 }
+.main{
+		
+		margin-left: auto;
+		margin-right: auto;
+	}
 </style>
