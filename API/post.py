@@ -68,7 +68,7 @@ class Item(BaseModel):
     usrID: str = None
     password: str = None
 @app.post('/register')
-def calculate(request_data: Item):
+async def calculate(request_data: Item):
     new_usrID = request_data.usrID
     new_password=request_data.password
     #插入数据库
@@ -87,7 +87,7 @@ class Item(BaseModel):
     usrID: str
     type: int
 @app.post('/buy')
-def calculate(request_data: Item):
+async def calculate(request_data: Item):
     result = generateLic(1)  # 此处生成许可证后还需写入数据库
     print(result[1])
     print(request_data)

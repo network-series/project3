@@ -2,9 +2,27 @@
 	<view>
 	
 			<!-- 头部logo -->
+			<view class="person-head main" v-if="num!=0">
+			  <!-- <cmd-avatar src="https://avatar.bbs.miui.com/images/noavatar_small.gif" @click="fnInfoWin" size="lg" :make="{'background-color': '#fff'}"></cmd-avatar> -->
+			  <view class="person-head-box">
+			    <view class="person-head-nickname">
+					
+						<view>用户您好！</view>
+						<view>您目前可用许可证为:9836482746</view>
+						<view>可用数量：50</view>
+				</view>
+			 
+				<wButton
+								text="退出登录"
+								:rotate="isRotate" 
+								@click.native="gologin"
+								class="wbutton"
+							></wButton>
+			  </view>
+			</view>
 			
 			<!-- 主体表单 -->
-		<view >
+		<view v-else>
 			<view class="person-head main">
 			  <!-- <cmd-avatar src="https://avatar.bbs.miui.com/images/noavatar_small.gif" @click="fnInfoWin" size="lg" :make="{'background-color': '#fff'}"></cmd-avatar> -->
 			  <view class="person-head-box">
@@ -14,11 +32,16 @@
 						<view>您目前没有可用许可证，请购买</view>
 				</view>
 			 
-				
+				<wButton
+								text="退出登录"
+								:rotate="isRotate" 
+								@click.native="gologin"
+								class="wbutton"
+				></wButton>
 			  </view>
 			</view>
 			
-			<view class="uni-padding-wrap" style="text-align: center; margin-top: 1%;">
+			<view class="uni-padding-wrap" style="text-align: center; margin-top: 10%;">
 			        <radio-group @change="ratioChange">
 			            <view>
 			                <label class="radio"><radio value='10' />10人</label>
@@ -32,12 +55,6 @@
 				:rotate="isRotate" 
 				@click.native="getLicense()"
 				class="wbutton"
-			></wButton>
-			<wButton
-							text="退出登录"
-							:rotate="isRotate" 
-							@click.native="gologin"
-							class="wbutton"
 			></wButton>
 			</view>
 			
@@ -84,9 +101,7 @@
 		},
 		methods: {
 			getLicense:function(){
-				uni.navigateTo({
-					url:"./in"
-				})
+				
 			},
 			ratioChange: function(evt){
 				console.log(evt.detail.value)
@@ -108,7 +123,7 @@
 	    display: flex;
 	    flex-direction: row;
 	    align-items: center;
-	    height: 250px;
+	    height: 1000px;
 	    padding-left: 20px;
 	    background: linear-gradient(to bottom, #c9ffe6, #eefffa);
 	  }
