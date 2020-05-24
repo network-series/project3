@@ -3,15 +3,25 @@ import struct
 import time
 import pandas as pd
 from threading import Thread
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+from server_ip import *
 
 
 def main():
-    server_ip_port = ("192.168.1.2", 5200)
+    app = QApplication(sys.argv)
+    mainWindow = QMainWindow()
+    ui = Ui_MainWindow2()
+    ui.setupUi(mainWindow)
+    mainWindow.show()
+    ui.pushButton.clicked.connect(mainWindow.close)
+    app.exec_()
+    server_ip_port = (ui.lineEdit_2.text(), int(ui.lineEdit.text()))
     buffer_size = 1024
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.bind(server_ip_port)
     while True:
-        sExcelFile = r"C:\Users\zyj\Desktop\information.xlsx"
+        sExcelFile = r"information.xlsx"
         df = pd.read_excel(sExcelFile, keep_default_na=False)
         row_of_inf = df.shape[0]
         message, client_addr = conn.recvfrom(buffer_size)
@@ -26,6 +36,10 @@ def main():
             num = df['avai_num'][point]
             if num == 0:
                 conn.sendto("fail no ticket".encode(), client_addr)
+                in_file = open("log.txt", 'a')
+                in_file.writelines(
+                    str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))) + "  " + seq + "  " + "deny" + "\n")
+                in_file.close()
             else:
                 number = -1
                 for d in range(1, df['num'][point] + 1):
@@ -37,6 +51,10 @@ def main():
                 df.loc[point, 'avai_num'] = num
                 df.to_excel(sExcelFile, index=None)
                 conn.sendto(ticket.encode(), client_addr)
+                in_file = open("log.txt", 'a')
+                in_file.writelines(
+                    str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))) + "  " + seq + "  " + "agree" + "\n")
+                in_file.close()
         elif message.decode()[0:4] == "gbye":
             g_split = message.decode().split()
             tickets, se = g_split[1], g_split[2]
@@ -80,9 +98,10 @@ def main():
             continue
 
 
+
 def check_client():
     while True:
-        sExcelFile = r"C:\Users\zyj\Desktop\information.xlsx"
+        sExcelFile = r"information.xlsx"
         df = pd.read_excel(sExcelFile, keep_default_na=False)
         row_of_inf = df.shape[0]
         for i in range(row_of_inf):
@@ -99,7 +118,7 @@ def check_client():
 
 
 def inita():
-    sExcelFile = r"C:\Users\zyj\Desktop\information.xlsx"
+    sExcelFile = r"information.xlsx"
     df = pd.read_excel(sExcelFile, keep_default_na=False)
     row_of_inf = df.shape[0]
     for i in range(row_of_inf):
