@@ -1,7 +1,4 @@
 # 许可证购买软件界面 
-
-
-
 ### Input的使用    
 
 * 基本用法  
@@ -104,9 +101,3 @@ getVerCode(){
 │   │   │   ├── Icon.css    //从ColorUi提取的Icon
 │   │   └── watch-input.vue    //Input组件
 │   │   └── watch-button.vue    //button组件
-├── pages    //页面文件夹  
-│   └── login
-│   │   └── css    //样式/Icon
-│   │   │   ├── main.css    //主样式
-│   │   ├── login.vue    //登录页
-
